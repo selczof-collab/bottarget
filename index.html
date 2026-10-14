@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BotTarget">
+<title>BotTarget</title>
+<style>
+:root{--bg:#e9eef5;--surface:#fff;--text:#0d1b2a;--mute:#5b6b7e;--line:#d3dbe6;--acc:#1b4de4;--accfg:#fff;--ok:#0f9d58;--bar:#d3dbe6;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1b2a;--surface:#14263a;--text:#e8eef6;--mute:#93a4b8;--line:#243a52;--acc:#7b9bff;--accfg:#0d1b2a;--ok:#3ddc84;--bar:#243a52}}
+:root[data-theme="dark"]{--bg:#0d1b2a;--surface:#14263a;--text:#e8eef6;--mute:#93a4b8;--line:#243a52;--acc:#7b9bff;--accfg:#0d1b2a;--ok:#3ddc84;--bar:#243a52}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Avenir Next",ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:480px;margin:0 auto;padding:20px 18px 40px}
+h2{font-size:17px;margin:34px 0 12px;font-weight:700}
+.hero{padding:10px 0 6px}
+.hero p{margin:0;color:var(--mute);font-size:15px}
+.big{font-size:64px;line-height:1;font-weight:800;letter-spacing:-2px;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.done .big{color:var(--ok)}
+.bar{height:10px;border-radius:5px;background:var(--bar);overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:5px;transition:width .4s}
+.bar.ok i{background:var(--ok)}
+.row{display:flex;gap:8px;align-items:center}
+input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+button{font:inherit;font-weight:600;padding:12px 16px;border-radius:10px;border:0;background:var(--acc);color:var(--accfg);cursor:pointer}
+button.alt{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+button.ok{background:var(--ok);color:#fff}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.env{padding:14px 0;border-top:1px solid var(--line)}
+.env:first-of-type{border-top:0}
+.env .top{display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.env .top span:last-child{color:var(--mute);font-weight:500;font-variant-numeric:tabular-nums}
+.hint{color:var(--mute);font-size:14px;margin:8px 0 0}
+.item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:15px}
+.item small{color:var(--mute);display:block}
+.item button{padding:6px 10px;background:none;color:var(--mute);font-size:20px;line-height:1}
+.lim{margin-top:34px;padding:14px;border-radius:12px;background:var(--surface);font-size:15px}
+.lim b{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+var WEEK_MIN=11500, WEEKEND=4000, SHARE=0.7;
+var ENV={mama:['Подарок маме',4000],ng:['Новый год',12000],repair:['Ремонт машины',35000]};
+var S={income:[],saved:{mama:0,ng:0,repair:0},checks:{}};
+try{var raw=localStorage.getItem('bt1');if(raw){var p=JSON.parse(raw);S.income=p.income||[];S.saved=Object.assign(S.saved,p.saved||{});S.checks=p.checks||{}}}catch(e){}
+function persist(){try{localStorage.setItem('bt1',JSON.stringify(S))}catch(e){}}
+function fmt(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
+function dstr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dow(){return (new Date().getDay()+6)%7}
+function weekStart(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-dow());return d.getTime()}
+function weekInc(){var w=weekStart();return S.income.filter(function(i){return i.t>=w}).reduce(function(a,i){return a+i.amt},0)}
+function streak(){var n=0,d=new Date(),today=true;for(;;){var v=S.checks[dstr(d)];if(v===undefined){if(today){today=false;d.setDate(d.getDate()-1);continue}break}if(!v)break;n++;today=false;d.setDate(d.getDate()-1)}return n}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function num(id){return parseFloat(String(document.getElementById(id).value).replace(',','.'))}
+
+function addInc(){var a=num('ia');if(!(a>0))return;S.income.push({t:Date.now(),amt:a,note:document.getElementById('in').value.trim()});persist();render()}
+function delInc(t){S.income=S.income.filter(function(i){return i.t!==t});persist();render()}
+function addEnv(k){var v=num('e_'+k);if(!(v>0))return;S.saved[k]+=v;persist();render()}
+function mark(v){S.checks[dstr(new Date())]=v;persist();render()}
+
+function render(){
+  var e=weekInc(),left=Math.max(0,WEEK_MIN-e),dl=7-dow(),per=left/dl,pct=Math.min(100,e/WEEK_MIN*100);
+  var tc=S.checks[dstr(new Date())],h='';
+  h+='<section class="hero'+(left===0?' done':'')+'">';
+  if(left===0){h+='<p>Недельный минимум выполнен</p><div class="big">+'+fmt(e-WEEK_MIN)+'</div><p>сверх минимума. В конверты по правилу: '+fmt((e-WEEK_MIN)*SHARE)+'</p>'}
+  else{h+='<p>Заработать сегодня</p><div class="big">'+fmt(per)+'</div><p>Осталось '+fmt(left)+' за '+dl+' '+(dl===1?'день':dl<5?'дня':'дней')+'</p>'}
+  h+='<div class="bar'+(left===0?' ok':'')+'"><i style="width:'+pct+'%"></i></div><p>'+fmt(e)+' из '+fmt(WEEK_MIN)+' за неделю</p></section>';
+
+  h+='<h2>Записать доход</h2><div class="row"><input id="ia" type="number" inputmode="decimal" placeholder="Сумма"><input id="in" placeholder="За что"></div>';
+  h+='<div class="row" style="margin-top:8px"><button onclick="addInc()" style="flex:1">Записать</button></div>';
+  var w=weekStart(),list=S.income.filter(function(i){return i.t>=w}).slice(-5).reverse();
+  if(list.length){h+='<div style="margin-top:14px">';list.forEach(function(i){var d=new Date(i.t);h+='<div class="item"><div>'+fmt(i.amt)+'<small>'+esc(i.note||'без названия')+', '+d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0')+'</small></div><button aria-label="Удалить запись" onclick="delInc('+i.t+')">×</button></div>'});h+='</div>'}
+
+  h+='<h2>Конверты</h2>';
+  Object.keys(ENV).forEach(function(k){var s=S.saved[k],g=ENV[k][1],pc=Math.min(100,s/g*100);
+    h+='<div class="env"><div class="top"><span>'+ENV[k][0]+'</span><span>'+fmt(s)+' / '+fmt(g)+'</span></div><div class="bar'+(s>=g?' ok':'')+'"><i style="width:'+pc+'%"></i></div>';
+    h+='<div class="row"><input id="e_'+k+'" type="number" inputmode="decimal" placeholder="Отложить, ₽"><button class="alt" onclick="addEnv(\''+k+'\')">Отложить</button></div></div>'});
+
+  h+='<h2>Итог дня</h2>';
+  if(tc===1)h+='<p class="hint">Сегодня отмечено: сделано.</p>';
+  else if(tc===0)h+='<p class="hint">Сегодня отмечено: не сделано. Завтра без отговорок.</p>';
+  h+='<div class="row"><button class="ok" style="flex:1" onclick="mark(1)">Сделал</button><button class="alt" style="flex:1" onclick="mark(0)">Не сделал</button></div>';
+  h+='<p class="hint">Серия выполненных дней: '+streak()+'</p>';
+
+  h+='<div class="lim">Лимит на выходные: <b>'+fmt(WEEKEND)+'</b> вместе с поездкой.</div>';
+  document.getElementById('app').innerHTML=h;
+}
+render();
+</script>
+</body>
+</html>
