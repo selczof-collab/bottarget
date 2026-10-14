@@ -4,81 +4,166 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="BotTarget">
 <title>BotTarget</title>
 <style>
-:root{--bg:#e9eef5;--surface:#fff;--text:#0d1b2a;--mute:#5b6b7e;--line:#d3dbe6;--acc:#1b4de4;--accfg:#fff;--ok:#0f9d58;--bar:#d3dbe6;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1b2a;--surface:#14263a;--text:#e8eef6;--mute:#93a4b8;--line:#243a52;--acc:#7b9bff;--accfg:#0d1b2a;--ok:#3ddc84;--bar:#243a52}}
-:root[data-theme="dark"]{--bg:#0d1b2a;--surface:#14263a;--text:#e8eef6;--mute:#93a4b8;--line:#243a52;--acc:#7b9bff;--accfg:#0d1b2a;--ok:#3ddc84;--bar:#243a52}
+:root{--bg:#e9eef5;--surface:#fff;--text:#0d1b2a;--mute:#5b6b7e;--line:#d3dbe6;--acc:#1b4de4;--accfg:#fff;--ok:#0f9d58;--okfg:#fff;--bar:#d3dbe6;--bad:#c2410c;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1b2a;--surface:#14263a;--text:#e8eef6;--mute:#93a4b8;--line:#243a52;--acc:#7b9bff;--accfg:#0d1b2a;--ok:#3ddc84;--okfg:#06210f;--bar:#243a52;--bad:#ff9a6b}}
+:root[data-theme="dark"]{--bg:#0d1b2a;--surface:#14263a;--text:#e8eef6;--mute:#93a4b8;--line:#243a52;--acc:#7b9bff;--accfg:#0d1b2a;--ok:#3ddc84;--okfg:#06210f;--bar:#243a52;--bad:#ff9a6b}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Avenir Next",ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
 main{max-width:480px;margin:0 auto;padding:20px 18px 40px}
 h2{font-size:17px;margin:34px 0 12px;font-weight:700}
-.hero{padding:10px 0 6px}
 .hero p{margin:0;color:var(--mute);font-size:15px}
-.big{font-size:64px;line-height:1;font-weight:800;letter-spacing:-2px;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.hero+.hero{margin-top:36px}
+.big{font-size:60px;line-height:1;font-weight:800;letter-spacing:-2px;margin:6px 0 6px;font-variant-numeric:tabular-nums}
+.big.neg{color:var(--bad)}
 .done .big{color:var(--ok)}
-.bar{height:10px;border-radius:5px;background:var(--bar);overflow:hidden;margin:10px 0 6px}
+.bar{height:10px;border-radius:5px;background:var(--bar);overflow:hidden;margin:8px 0 6px}
 .bar i{display:block;height:100%;background:var(--acc);border-radius:5px;transition:width .4s}
 .bar.ok i{background:var(--ok)}
 .row{display:flex;gap:8px;align-items:center}
-input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+input,select{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
 button{font:inherit;font-weight:600;padding:12px 16px;border-radius:10px;border:0;background:var(--acc);color:var(--accfg);cursor:pointer}
 button.alt{background:var(--surface);color:var(--text);border:1px solid var(--line)}
-button.ok{background:var(--ok);color:#fff}
-button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.env{padding:14px 0;border-top:1px solid var(--line)}
+button.ok{background:var(--ok);color:var(--okfg)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.line{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.line:first-of-type{border-top:0}
+.line span:last-child{color:var(--mute);white-space:nowrap}
+.env{padding:12px 0;border-top:1px solid var(--line)}
 .env:first-of-type{border-top:0}
 .env .top{display:flex;justify-content:space-between;gap:10px;font-weight:600}
 .env .top span:last-child{color:var(--mute);font-weight:500;font-variant-numeric:tabular-nums}
 .hint{color:var(--mute);font-size:14px;margin:8px 0 0}
+.bad,.line span.bad{color:var(--bad)!important}
+.msg{margin:12px 0 0;padding:12px;border-radius:10px;background:var(--surface);font-size:15px}
 .item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:15px}
 .item small{color:var(--mute);display:block}
 .item button{padding:6px 10px;background:none;color:var(--mute);font-size:20px;line-height:1}
-.lim{margin-top:34px;padding:14px;border-radius:12px;background:var(--surface);font-size:15px}
-.lim b{font-variant-numeric:tabular-nums}
+summary{font-weight:700;font-size:17px;margin:34px 0 12px;cursor:pointer}
+label{display:block;font-size:14px;color:var(--mute);margin:10px 0 4px}
+.gap{margin-top:8px}
 </style>
 </head>
 <body>
 <main id="app"></main>
 <script>
-var WEEK_MIN=11500, WEEKEND=4000, SHARE=0.7;
-var ENV={mama:['Подарок маме',4000],ng:['Новый год',12000],repair:['Ремонт машины',35000]};
-var S={income:[],saved:{mama:0,ng:0,repair:0},checks:{}};
-try{var raw=localStorage.getItem('bt1');if(raw){var p=JSON.parse(raw);S.income=p.income||[];S.saved=Object.assign(S.saved,p.saved||{});S.checks=p.checks||{}}}catch(e){}
-function persist(){try{localStorage.setItem('bt1',JSON.stringify(S))}catch(e){}}
+var DAY=864e5;
+var ENVN={mama:'Подарок маме',repair:'Ремонт машины'};
+var GOALS={mama:4000,repair:35000};
+var CAPS={mama:2000};
+var S={income:[],exp:[],checks:{},cfg:null},lastMsg='';
+function mon(t){var d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()}
+try{
+  var raw=localStorage.getItem('bt2');
+  if(raw){var p=JSON.parse(raw);S.income=p.income||[];S.exp=p.exp||[];S.checks=p.checks||{};S.cfg=p.cfg||null}
+  else{var o=localStorage.getItem('bt1');if(o){var q=JSON.parse(o);S.income=(q.income||[]).map(function(i){return{t:i.t,amt:i.amt,note:i.note}});S.checks=q.checks||{}}}
+}catch(e){}
+if(!S.cfg)S.cfg={base:7800,t:[15000,17500,20000],len:2,start:mon(Date.now())};
+if(S.cfg.cred===undefined){S.cfg.cred=3810;S.cfg.credN=21}
+if(!S.cfg.lim)S.cfg.lim={gas:2300,trip:1500,wknd:4000};
+S.cfg.base=S.cfg.lim.gas+S.cfg.lim.trip+S.cfg.lim.wknd;
+var CATS={gas:'Бензин',trip:'Поездки',wknd:'Выходные',other:'Другое'},lastCat='gas';
+if(S.cfg.bal0===undefined)S.cfg.bal0=0;
+function persist(){try{localStorage.setItem('bt2',JSON.stringify(S))}catch(e){}}
 function fmt(n){return Math.round(n).toLocaleString('ru-RU')+' ₽'}
 function dstr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function dow(){return (new Date().getDay()+6)%7}
-function weekStart(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-dow());return d.getTime()}
-function weekInc(){var w=weekStart();return S.income.filter(function(i){return i.t>=w}).reduce(function(a,i){return a+i.amt},0)}
-function streak(){var n=0,d=new Date(),today=true;for(;;){var v=S.checks[dstr(d)];if(v===undefined){if(today){today=false;d.setDate(d.getDate()-1);continue}break}if(!v)break;n++;today=false;d.setDate(d.getDate()-1)}return n}
+function ddmm(t){var d=new Date(t);return d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0')}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function num(id){return parseFloat(String(document.getElementById(id).value).replace(',','.'))}
+function sumFrom(a,t){return a.filter(function(i){return i.t>=t}).reduce(function(x,i){return x+i.amt},0)}
+function dayStart(){var d=new Date();d.setHours(0,0,0,0);return d.getTime()}
+function monthStart(){var d=new Date();d.setHours(0,0,0,0);d.setDate(1);return d.getTime()}
+function total(){return S.cfg.bal0+sumFrom(S.income,0)-sumFrom(S.exp,0)}
+function credPaid(){return S.exp.filter(function(x){return x.cred}).length}
+function credLeft(){return Math.max(0,S.cfg.credN-credPaid())}
+function credCap(){return credLeft()>0?S.cfg.cred*12/52:0}
+function credThisMonth(){var m=monthStart();return S.exp.some(function(x){return x.cred&&x.t>=m})}
+function streak(){var n=0,d=new Date(),today=true;for(;;){var v=S.checks[dstr(d)];if(v===undefined){if(today){today=false;d.setDate(d.getDate()-1);continue}break}if(!v)break;n++;today=false;d.setDate(d.getDate()-1)}return n}
 
-function addInc(){var a=num('ia');if(!(a>0))return;S.income.push({t:Date.now(),amt:a,note:document.getElementById('in').value.trim()});persist();render()}
-function delInc(t){S.income=S.income.filter(function(i){return i.t!==t});persist();render()}
-function addEnv(k){var v=num('e_'+k);if(!(v>0))return;S.saved[k]+=v;persist();render()}
+// Распределение: обязательное, подарок маме, Новый год, ремонт, свободные
+function compute(){
+  var filled={mama:0,repair:0},weeks={},order=['base','credit','mama','repair','free'];
+  S.income.slice().sort(function(a,b){return a.t-b.t}).forEach(function(i){
+    var k=mon(i.t),w=weeks[k]||(weeks[k]={base:0,credit:0,mama:0,repair:0,free:0}),rest=i.amt;
+    order.forEach(function(b){
+      var cap=b==='base'?S.cfg.base:b==='credit'?credCap():(CAPS[b]!==undefined?CAPS[b]:Infinity),room=cap-w[b];
+      if(GOALS[b]!==undefined)room=Math.min(room,GOALS[b]-filled[b]);
+      var x=Math.max(0,Math.min(rest,room));w[b]+=x;if(GOALS[b]!==undefined)filled[b]+=x;rest-=x});
+  });
+  return{filled:filled,week:weeks[mon(Date.now())]||{base:0,credit:0,mama:0,repair:0,free:0}};
+}
+function stage(){
+  var ws=Math.max(0,Math.round((mon(Date.now())-S.cfg.start)/(7*DAY))),idx=Math.min(2,Math.floor(ws/S.cfg.len));
+  return{idx:idx,target:S.cfg.t[idx]};
+}
+
+function addInc(){
+  var a=num('ia');if(!(a>0))return;
+  var b=compute().week;
+  S.income.push({t:Date.now(),amt:a,note:document.getElementById('in').value.trim()});
+  var n=compute().week,names={base:'обязательное',credit:'кредиты',mama:'подарок маме',repair:'ремонт',free:'свободные'},parts=[];
+  Object.keys(names).forEach(function(k){var d=n[k]-b[k];if(d>0.5)parts.push(fmt(d)+' → '+names[k])});
+  lastMsg='Распределил '+fmt(a)+': '+parts.join(', ');
+  persist();render();
+}
+function delInc(t){S.income=S.income.filter(function(i){return i.t!==t});lastMsg='';persist();render()}
+function addExp(){var a=num('xa');if(!(a>0))return;var c=document.getElementById('xc').value;lastCat=c;S.exp.push({t:Date.now(),amt:a,note:document.getElementById('xn').value.trim(),cat:c});persist();render()}
+function delExp(t){S.exp=S.exp.filter(function(i){return i.t!==t});persist();render()}
+function setBal(){var v=num('bb');if(isNaN(v))return;S.cfg.bal0=v-(sumFrom(S.income,0)-sumFrom(S.exp,0));persist();render()}
+function payCred(){S.exp.push({t:Date.now(),amt:S.cfg.cred,note:'Кредиты и кредитка',cred:true});persist();render()}
 function mark(v){S.checks[dstr(new Date())]=v;persist();render()}
+function saveCfg(){
+  var v=['s_gas','s_trip','s_wknd','s_t1','s_t2','s_t3','s_len','s_cred','s_credN'].map(num);
+  if(v.some(function(x){return !(x>0)}))return;
+  S.cfg.lim={gas:v[0],trip:v[1],wknd:v[2]};S.cfg.base=v[0]+v[1]+v[2];S.cfg.t=[v[3],v[4],v[5]];S.cfg.len=Math.round(v[6]);S.cfg.cred=v[7];S.cfg.credN=Math.round(v[8]);persist();render();
+}
 
 function render(){
-  var e=weekInc(),left=Math.max(0,WEEK_MIN-e),dl=7-dow(),per=left/dl,pct=Math.min(100,e/WEEK_MIN*100);
-  var tc=S.checks[dstr(new Date())],h='';
-  h+='<section class="hero'+(left===0?' done':'')+'">';
-  if(left===0){h+='<p>Недельный минимум выполнен</p><div class="big">+'+fmt(e-WEEK_MIN)+'</div><p>сверх минимума. В конверты по правилу: '+fmt((e-WEEK_MIN)*SHARE)+'</p>'}
-  else{h+='<p>Заработать сегодня</p><div class="big">'+fmt(per)+'</div><p>Осталось '+fmt(left)+' за '+dl+' '+(dl===1?'день':dl<5?'дня':'дней')+'</p>'}
-  h+='<div class="bar'+(left===0?' ok':'')+'"><i style="width:'+pct+'%"></i></div><p>'+fmt(e)+' из '+fmt(WEEK_MIN)+' за неделю</p></section>';
+  var st=stage(),e=sumFrom(S.income,mon(Date.now())),daily=st.target/7,td=sumFrom(S.income,dayStart());
+  var cm=compute(),w=cm.week,tc=S.checks[dstr(new Date())],h='';
+  var tot=total(),mi=sumFrom(S.income,monthStart()),mx=sumFrom(S.exp,monthStart()),wx=sumFrom(S.exp.filter(function(x){return !x.cred}),mon(Date.now()));
+
+  // 1. Общий бюджет
+  h+='<section class="hero"><p>Всего денег</p><div class="big'+(tot<0?' neg':'')+'">'+fmt(tot)+'</div>';
+  h+='<p>За месяц: +'+fmt(mi)+', −'+fmt(mx)+'</p></section>';
+  h+='<div class="row gap" style="margin-top:14px"><input id="bb" type="number" inputmode="decimal" placeholder="Сколько денег сейчас"><button class="alt" onclick="setBal()">Задать</button></div>';
+  h+='<div class="row gap"><select id="xc" aria-label="Категория расхода">'+Object.keys(CATS).map(function(k){return '<option value="'+k+'"'+(k===lastCat?' selected':'')+'>'+CATS[k]+'</option>'}).join('')+'</select></div>';
+  h+='<div class="row gap"><input id="xa" type="number" inputmode="decimal" placeholder="Расход, ₽"><input id="xn" placeholder="Заметка"></div>';
+  h+='<div class="row gap"><button class="alt" onclick="addExp()" style="flex:1">Записать расход</button></div>';
+  h+='<h2>Обязательные траты за неделю</h2>';
+  ['gas','trip','wknd'].forEach(function(k){var sp=sumFrom(S.exp.filter(function(x){return x.cat===k}),mon(Date.now())),lm=S.cfg.lim[k],lf=lm-sp;
+    h+='<div class="env"><div class="top"><span>'+CATS[k]+'</span><span class="'+(lf<0?'bad':'')+'">'+(lf>=0?'осталось '+fmt(lf):'перерасход '+fmt(-lf))+'</span></div><div class="bar"><i style="width:'+Math.min(100,sp/lm*100)+'%"></i></div><p class="hint" style="margin:0">Потрачено '+fmt(sp)+' из '+fmt(lm)+'</p></div>'});
+  var xl=S.exp.slice().sort(function(a,b){return b.t-a.t}).slice(0,5);
+  if(xl.length){h+='<p class="hint" style="margin-top:16px">Последние траты</p><div style="margin-top:6px">';xl.forEach(function(i){h+='<div class="item"><div>−'+fmt(i.amt)+'<small>'+(i.cred?'Кредиты':CATS[i.cat||'other'])+(i.note?': '+esc(i.note):'')+', '+ddmm(i.t)+'</small></div><button aria-label="Удалить расход" onclick="delExp('+i.t+')">×</button></div>'});h+='</div>'}
+
+  // 2. Цель на день
+  var ok=td>=daily;
+  h+='<section class="hero'+(ok?' done':'')+'"><p>Цель на день (до '+fmt(st.target)+' в неделю)</p><div class="big">'+fmt(daily)+'</div>';
+  h+='<div class="bar'+(ok?' ok':'')+'"><i style="width:'+Math.min(100,td/daily*100)+'%"></i></div><p>Сегодня: '+fmt(td)+' из '+fmt(daily)+'</p>';
+  h+='<div class="bar'+(e>=st.target?' ok':'')+'"><i style="width:'+Math.min(100,e/st.target*100)+'%"></i></div><p>Неделя: '+fmt(e)+' из '+fmt(st.target)+'</p></section>';
 
   h+='<h2>Записать доход</h2><div class="row"><input id="ia" type="number" inputmode="decimal" placeholder="Сумма"><input id="in" placeholder="За что"></div>';
-  h+='<div class="row" style="margin-top:8px"><button onclick="addInc()" style="flex:1">Записать</button></div>';
-  var w=weekStart(),list=S.income.filter(function(i){return i.t>=w}).slice(-5).reverse();
-  if(list.length){h+='<div style="margin-top:14px">';list.forEach(function(i){var d=new Date(i.t);h+='<div class="item"><div>'+fmt(i.amt)+'<small>'+esc(i.note||'без названия')+', '+d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0')+'</small></div><button aria-label="Удалить запись" onclick="delInc('+i.t+')">×</button></div>'});h+='</div>'}
+  h+='<div class="row gap"><button onclick="addInc()" style="flex:1">Записать и распределить</button></div>';
+  if(lastMsg)h+='<div class="msg">'+esc(lastMsg)+'</div>';
+  var list=S.income.filter(function(i){return i.t>=mon(Date.now())}).slice(-5).reverse();
+  if(list.length){h+='<div style="margin-top:14px">';list.forEach(function(i){h+='<div class="item"><div>+'+fmt(i.amt)+'<small>'+esc(i.note||'без названия')+', '+ddmm(i.t)+'</small></div><button aria-label="Удалить запись" onclick="delInc('+i.t+')">×</button></div>'});h+='</div>'}
 
+  h+='<h2>Куда пошли деньги на этой неделе</h2>';
+  h+='<div class="line"><span>Обязательное (бензин, поездки, выходные)</span><span>'+fmt(w.base)+' / '+fmt(S.cfg.base)+'</span></div>';
+  h+='<div class="line"><span>Кредиты и кредитка</span><span>'+fmt(w.credit)+' / '+fmt(credCap())+'</span></div>';
+  h+='<div class="line"><span>Подарок маме</span><span>'+fmt(w.mama)+' / '+fmt(CAPS.mama)+'</span></div>';
+  
+  h+='<div class="line"><span>Ремонт</span><span>'+fmt(w.repair)+'</span></div>';
+  h+='<div class="line"><span>Свободные, тебе</span><span>'+fmt(w.free)+'</span></div>';
+
+  var cl=credLeft();
+  h+='<h2>Кредиты и кредитка</h2><div class="env" style="border-top:0"><div class="top"><span>'+fmt(S.cfg.cred)+' в месяц</span><span>осталось '+cl+' мес.</span></div><div class="bar'+(cl===0?' ok':'')+'"><i style="width:'+Math.min(100,credPaid()/S.cfg.credN*100)+'%"></i></div></div>';
+  h+=credThisMonth()?'<p class="hint">Платёж за этот месяц внесён.</p>':'<div class="row gap"><button class="alt" onclick="payCred()" style="flex:1">Оплатил платёж за месяц</button></div>';
   h+='<h2>Конверты</h2>';
-  Object.keys(ENV).forEach(function(k){var s=S.saved[k],g=ENV[k][1],pc=Math.min(100,s/g*100);
-    h+='<div class="env"><div class="top"><span>'+ENV[k][0]+'</span><span>'+fmt(s)+' / '+fmt(g)+'</span></div><div class="bar'+(s>=g?' ok':'')+'"><i style="width:'+pc+'%"></i></div>';
-    h+='<div class="row"><input id="e_'+k+'" type="number" inputmode="decimal" placeholder="Отложить, ₽"><button class="alt" onclick="addEnv(\''+k+'\')">Отложить</button></div></div>'});
+  Object.keys(GOALS).forEach(function(k){var s=cm.filled[k],g=GOALS[k];
+    h+='<div class="env"><div class="top"><span>'+ENVN[k]+'</span><span>'+fmt(s)+' / '+fmt(g)+'</span></div><div class="bar'+(s>=g?' ok':'')+'"><i style="width:'+Math.min(100,s/g*100)+'%"></i></div></div>'});
 
   h+='<h2>Итог дня</h2>';
   if(tc===1)h+='<p class="hint">Сегодня отмечено: сделано.</p>';
@@ -86,8 +171,13 @@ function render(){
   h+='<div class="row"><button class="ok" style="flex:1" onclick="mark(1)">Сделал</button><button class="alt" style="flex:1" onclick="mark(0)">Не сделал</button></div>';
   h+='<p class="hint">Серия выполненных дней: '+streak()+'</p>';
 
-  h+='<div class="lim">Лимит на выходные: <b>'+fmt(WEEKEND)+'</b> вместе с поездкой.</div>';
+  h+='<details><summary>Настройки</summary>';
+  [['s_gas','Бензин, ₽ в неделю',S.cfg.lim.gas],['s_trip','Поездки, ₽ в неделю',S.cfg.lim.trip],['s_wknd','Выходные, ₽ в неделю',S.cfg.lim.wknd],['s_t1','Цель этапа 1, ₽ в неделю',S.cfg.t[0]],['s_t2','Цель этапа 2, ₽ в неделю',S.cfg.t[1]],['s_t3','Цель этапа 3, ₽ в неделю',S.cfg.t[2]],['s_len','Длина этапа, недель',S.cfg.len],['s_cred','Платёж по кредитам и кредитке, ₽ в месяц',S.cfg.cred],['s_credN','Всего платежей по кредитам, месяцев',S.cfg.credN]].forEach(function(f){
+    h+='<label for="'+f[0]+'">'+f[1]+'</label><input id="'+f[0]+'" type="number" inputmode="decimal" value="'+f[2]+'">'});
+  h+='<div class="row" style="margin-top:12px"><button onclick="saveCfg()" style="flex:1">Сохранить настройки</button></div></details>';
+  var open=document.querySelector('details');var was=open&&open.open;
   document.getElementById('app').innerHTML=h;
+  if(was)document.querySelector('details').open=true;
 }
 render();
 </script>
